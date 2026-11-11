@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>登录 · Covernas</title>
+<meta name="theme-color" content="#0f7b5f">
+<link rel="manifest" href="/static/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/static/pwa-192.png">
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/polish.css">
+</head>
+<body class="auth-body">
+
+<!-- 整页壁纸：由后端 /api/login-wall 下发（自定义图片或内置风格） -->
+<script>
+fetch('/api/login-wall').then(function (r) { return r.json(); }).then(function (d) {
+  if (!d.ok) return;
+  var body = document.body;
+  if (d.kind === 'img') {
+    body.style.setProperty('--wall', 'url("' + d.url + '")');
+    body.style.setProperty('--wall-size', 'cover');
+  } else {
+    body.style.setProperty('--wall', d.css);
+    if (d.size) body.style.setProperty('--wall-size', d.size);
+  }
+}).catch(function () {});
+</script>
+
+<div class="auth-wrap">
+  <form class="auth-card" id="loginForm" autocomplete="off">
+    <div class="auth-mark">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <defs>
+          <linearGradient id="lg-badge" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#1fbf94"/>
+            <stop offset=".55" stop-color="#0f9a74"/>
+            <stop offset="1" stop-color="#0a5c47"/>
+          </linearGradient>
+          <linearGradient id="lg-shine" x1="4" y1="2" x2="44" y2="24" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#ffffff" stop-opacity=".38"/>
+            <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#lg-badge)"/>
+        <path d="M6 15 C6 8 12 4 24 4 C36 4 42 8 42 15 C42 18 40 20 37 21 L11 21 C8 20 6 18 6 15 Z" fill="url(#lg-shine)"/>
+        <path d="M14.8 30.6a6.2 6.2 0 0 1-1-12.3A8.2 8.2 0 0 1 29.6 12a8.8 8.8 0 0 1 9.2 8.2 6.2 6.2 0 0 1-1.6 12.2 6.2 6.2 0 0 1-1.1-.1Z" fill="#ffffff"/>
+        <path d="M15.5 35.5h17a2.4 2.4 0 0 0 2.4-2.4v-7.6h-21.8v7.6a2.4 2.4 0 0 0 2.4 2.4Z" fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="19.6" cy="30.4" r="1.15" fill="#ffffff"/>
+        <circle cx="24" cy="30.4" r="1.15" fill="#ffffff"/>
+        <circle cx="28.4" cy="30.4" r="1.15" fill="#ffffff"/>
+      </svg>
+    </div>
+    <div class="auth-brand">Covernas</div>
+    <div class="auth-brand-sub">COVER NAS · 家庭服务器</div>
+    <h1 id="authTitle">登录</h1>
+    <p class="auth-sub" id="authSub">输入管理密码，进入这台设备</p>
+    <label class="field" id="userField">
+      <span>用户名</span>
+      <input type="text" name="username" id="usernameInput" placeholder="admin" autocomplete="username">
+    </label>
+    <label class="field">
+      <span>密码</span>
+      <input type="password" name="password" required autofocus placeholder="至少 8 位">
+    </label>
+    <button class="btn btn-primary btn-block" type="submit" id="submitBtn">进入</button>
+    <p class="auth-tip" id="authTip"></p>
+    <button class="auth-link" type="button" id="forgotBtn" style="display:none">忘记密码？</button>
+  </form>
+  <p class="auth-foot">Covernas · 家庭服务器</p>
+
+  <div class="recover-card" id="recoverCard" hidden>
+    <h2>重置密码</h2>
+    <p class="auth-sub">需要恢复码。SSH 登录设备后查看 <code>/etc/box/recovery-key</code> 文件里的内容。</p>
+    <label class="field"><span>恢复码</span><input type="text" id="recoverCode" autocomplete="off" placeholder="12 位恢复码"></label>
+    <label class="field"><span>新密码</span><input type="password" id="recoverNew" minlength="8" placeholder="至少 8 位"></label>
+    <button class="btn btn-primary btn-block" id="recoverBtn">重置密码</button>
+    <p class="auth-tip" id="recoverTip"></p>
+    <button class="auth-link" type="button" id="backLoginBtn">返回登录</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById('loginForm');
+  var tip = document.getElementById('authTip');
+  var btn = document.getElementById('submitBtn');
+  var forgotBtn = document.getElementById('forgotBtn');
+  var recoverCard = document.getElementById('recoverCard');
+  var recoverBtn = document.getElementById('recoverBtn');
+  var recoverTip = document.getElementById('recoverTip');
+  var backLoginBtn = document.getElementById('backLoginBtn');
+  var mode = 'login';
+
+  fetch('/api/login').then(function (r) { return r.json(); }).then(function (d) {
+    if (d.authed) { location.href = '/'; return; }
+    if (d.init !== false) { forgotBtn.style.display = ''; }
+    if (d.init === false) {
+      mode = 'setup';
+      document.getElementById('authTitle').textContent = '初始化';
+      document.getElementById('authSub').textContent = '为这台设备设置管理密码（管理员 admin）';
+      document.getElementById('userField').style.display = 'none';
+      btn.textContent = '创建并进入';
+    }
+  }).catch(function () {});
+
+  forgotBtn.addEventListener('click', function () {
+    forgotBtn.style.display = 'none';
+    form.style.display = 'none';
+    recoverCard.hidden = false;
+  });
+
+  backLoginBtn.addEventListener('click', function () {
+    recoverCard.hidden = true;
+    form.style.display = '';
+    forgotBtn.style.display = '';
+  });
+
+  recoverBtn.addEventListener('click', function () {
+    var code = document.getElementById('recoverCode').value.trim();
+    var np = document.getElementById('recoverNew').value;
+    if (!code || !np) { recoverTip.textContent = '请填写恢复码和新密码'; recoverTip.classList.add('err'); return; }
+    recoverBtn.disabled = true;
+    fetch('/api/recover', { method: 'POST', body: new URLSearchParams({ code: code, new: np }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.ok) { recoverTip.textContent = d.msg; recoverTip.classList.remove('err'); backLoginBtn.click(); }
+        else { recoverTip.textContent = d.err || '重置失败'; recoverTip.classList.add('err'); }
+        recoverBtn.disabled = false;
+      })
+      .catch(function () { recoverTip.textContent = '网络错误'; recoverTip.classList.add('err'); recoverBtn.disabled = false; });
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = '处理中…';
+    var fd = new FormData(form);
+    var url = mode === 'setup' ? '/api/setup' : '/api/login';
+    fetch(url, { method: 'POST', body: new URLSearchParams(fd) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.ok) { location.href = '/'; return; }
+        tip.textContent = d.err || '失败';
+        tip.classList.add('err');
+        btn.disabled = false;
+        btn.textContent = mode === 'setup' ? '创建并进入' : '进入';
+      })
+      .catch(function () {
+        tip.textContent = '网络错误';
+        tip.classList.add('err');
+        btn.disabled = false;
+        btn.textContent = mode === 'setup' ? '创建并进入' : '进入';
+      });
+  });
+})();
+</script>
+</body>
+</html>

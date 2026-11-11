@@ -1,0 +1,644 @@
+/* ==========================================================================
+   Covernas · 视觉打磨层（polish.css）
+   --------------------------------------------------------------------------
+   职责：只做“增量打磨”，不改写原有布局与配色体系。
+   挂载：必须位于 /static/app.css 之后（本文件依赖并覆盖其部分状态样式）。
+
+   遵守的现有设计体系：
+   · 单一强调色 --accent 及其派生 --accent-rgb / --accent-hi / --accent-soft
+   · 圆角 10 / 14 / 18（--r-sm / --r-md / --r-lg）
+   · 发丝线 --line / --line-2，毛玻璃 backdrop-filter，数字 tabular-nums
+   · body.has-wall 下的半透明毛玻璃：
+     本文件对容器只使用 rgba()/透明叠加色，不写不透明背景，
+     也不覆盖 .side/.topbar/.pane/.block/.stat-card 等容器的 backdrop-filter。
+
+   纯 CSS：无 @import、无网络字体、无外链图片。
+   ========================================================================== */
+
+
+/* ==========================================================================
+   01 · 设计令牌（本文件新增；已 grep 确认与 app.css 无同名变量）
+   ========================================================================== */
+:root {
+  /* 动效时长：fast=悬停/按压反馈，base=卡片位移，slow=弹层/视图过渡 */
+  --t-fast: 130ms;
+  --t-base: 170ms;
+  --t-slow: 240ms;
+
+  /* 缓动曲线：standard=收尾自然，emphasis=轻微回弹 */
+  --ease-standard: cubic-bezier(.2, .8, .3, 1);
+  --ease-emphasis: cubic-bezier(.34, 1.4, .64, 1);
+
+  /* 键盘焦点环尺寸 */
+  --focus-w: 2px;
+  --focus-off: 2px;
+
+  /* 语义化叠加色（accent 系，保持“单一强调色”）
+     注意：这里引用 var(--accent-rgb)，深色主题切换时会自动更新 */
+  --hover-tint: rgba(var(--accent-rgb), .055);
+  --press-tint: rgba(var(--accent-rgb), .085);
+
+  /* 骨架屏底色 / 高光 */
+  --skel-base: rgba(22, 40, 30, .055);
+  --skel-hi: rgba(22, 40, 30, .11);
+
+  /* 滚动条滑块 */
+  --scroll-thumb: rgba(var(--accent-rgb), .28);
+  --scroll-thumb-hover: rgba(var(--accent-rgb), .46);
+}
+
+
+/* ==========================================================================
+   02 · 键盘焦点可访问性（:focus-visible 环形高亮）
+   ========================================================================== */
+/* 键盘操作才显示焦点环；鼠标点击不显示，避免视觉噪音 */
+:focus-visible {
+  outline: var(--focus-w) solid var(--accent);
+  outline-offset: var(--focus-off);
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* 这些表单控件在 app.css 里已有 :focus 的柔和光圈（box-shadow），
+   键盘聚焦时不再叠加外环，避免“双环”。 */
+.field input:focus-visible,
+.search:focus-visible,
+.sel:focus-visible,
+.mini-field input:focus-visible {
+  outline: none;
+}
+
+/* 靠发丝线做边界的标题 / 文本域：键盘聚焦时在底边点亮 accent，
+   比整圈 outline 更贴合现有设计语言。 */
+.note-title:focus-visible,
+.note-body:focus-visible,
+.cron-editor:focus-visible {
+  outline: none;
+  box-shadow: inset 0 -2px 0 0 var(--accent);
+}
+
+
+/* ==========================================================================
+   03 · 文本选中 & 细滚动条
+   ========================================================================== */
+::selection {
+  background: rgba(var(--accent-rgb), .22);
+  color: var(--txt);
+}
+
+/* Firefox / 新版 Chromium：细滚动条 + 强调色滑块（继承自 html） */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
+}
+
+/* WebKit / Blink：8px 圆角细滚动条。
+   已被 app.css 显式隐藏的 .nav / .crumbs 滚动条不受影响（其选择器更具体）。 */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scroll-thumb);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  border-radius: 99px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scroll-thumb-hover);
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+
+/* ==========================================================================
+   04 · 交互反馈 · 按钮
+   ========================================================================== */
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+/* 去掉移动端 300ms 点击延迟，同时保留双击缩放（不写 touch-action: none） */
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+.btn {
+  transition:
+    background var(--t-fast) var(--ease-standard),
+    border-color var(--t-fast) var(--ease-standard),
+    color var(--t-fast) var(--ease-standard),
+    box-shadow var(--t-base) var(--ease-standard),
+    transform var(--t-fast) var(--ease-standard);
+}
+/* 悬停：轻微上浮 + 一层很淡的投影，让可点击感更明确 */
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 2px rgba(22, 40, 30, .06),
+    0 8px 18px -14px rgba(22, 40, 30, .45);
+}
+/* 按下：回落 + 轻微缩放，给到“按实了”的手感 */
+.btn:active {
+  transform: translateY(0) scale(.98);
+  box-shadow: none;
+}
+.btn:disabled,
+.btn:disabled:hover,
+.btn:disabled:active {
+  transform: none;
+  box-shadow: none;
+}
+
+/* 主按钮 / 危险按钮：投影改用各自的语义色，保持克制 */
+.btn-primary:hover {
+  box-shadow:
+    0 2px 6px rgba(var(--accent-rgb), .2),
+    0 10px 22px -14px rgba(var(--accent-rgb), .8);
+}
+.btn-danger:hover {
+  box-shadow:
+    0 2px 6px rgba(191, 74, 67, .16),
+    0 10px 22px -14px rgba(191, 74, 67, .7);
+}
+
+/* 小号工具按钮：反馈幅度减半，避免密集工具栏“抖” */
+.btn-sm:hover {
+  transform: translateY(-.5px);
+}
+.btn-sm:active {
+  transform: translateY(0) scale(.99);
+}
+
+
+/* ==========================================================================
+   05 · 交互反馈 · 导航 / 磁贴 / 列表行 / 分段控件
+   ========================================================================== */
+/* 侧栏导航：悬停染色 + 按下缩放；选中项左侧加 accent 指示条 */
+.nav-item {
+  position: relative;
+  transition:
+    background var(--t-fast) var(--ease-standard),
+    color var(--t-fast) var(--ease-standard),
+    transform var(--t-fast) var(--ease-standard);
+}
+.nav-item:hover {
+  background: var(--hover-tint);
+}
+.nav-item:active {
+  transform: scale(.985);
+}
+.nav-item.on::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 15px;
+  margin-top: -7.5px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+  pointer-events: none;
+  transform: scaleY(.5);
+  opacity: 0;
+  transition:
+    transform var(--t-base) var(--ease-emphasis),
+    opacity var(--t-base) var(--ease-standard);
+}
+.nav-item.on::before {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+/* 移动端底栏：触控反馈 + 选中项药丸底 */
+.bn-item {
+  transition:
+    color var(--t-fast) var(--ease-standard),
+    background var(--t-fast) var(--ease-standard),
+    transform var(--t-fast) var(--ease-standard);
+}
+.bn-item:active {
+  transform: scale(.94);
+}
+.bn-item .i {
+  transition: transform var(--t-base) var(--ease-emphasis);
+}
+.bn-item.on .i {
+  transform: translateY(-1px);
+}
+
+/* 应用磁贴：整块上浮 + 按下回弹（图标自身动画由 app.css 负责） */
+.tile {
+  transition:
+    background var(--t-fast) var(--ease-standard),
+    transform var(--t-base) var(--ease-standard);
+}
+.tile:hover {
+  transform: translateY(-2px);
+}
+.tile:active {
+  transform: translateY(0) scale(.98);
+}
+
+/* 列表行：悬停用 accent 极淡染色，替代原来的近白色底，质感更统一。
+   已选中 / 已勾选 / 播放中的行保留原有强调底色，不参与覆盖。 */
+.row {
+  transition: background var(--t-fast) var(--ease-standard);
+}
+.list .row:hover:not(.cur):not(.picked):not(.playing) {
+  background: var(--hover-tint);
+}
+.list .row:active:not(.cur):not(.picked):not(.playing) {
+  background: var(--press-tint);
+}
+/* 文件视图里的小卡片行 */
+.list.fv .fv-item {
+  transition:
+    background var(--t-fast) var(--ease-standard),
+    border-color var(--t-fast) var(--ease-standard),
+    box-shadow var(--t-fast) var(--ease-standard);
+}
+.list.fv .fv-item:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+/* 最近文件：文件名染色加过渡 */
+.recent-item .ri-name {
+  transition: color var(--t-fast) var(--ease-standard);
+}
+
+/* 分段控件 / 标签页 / 行内文字按钮 */
+.tab,
+.seg button {
+  transition:
+    background var(--t-fast) var(--ease-standard),
+    color var(--t-fast) var(--ease-standard),
+    transform var(--t-fast) var(--ease-standard);
+}
+.tab:active,
+.seg button:active {
+  transform: scale(.97);
+}
+.link,
+.crumbs button {
+  transition:
+    color var(--t-fast) var(--ease-standard),
+    background var(--t-fast) var(--ease-standard);
+}
+
+
+/* ==========================================================================
+   06 · 卡片 / 面板细节
+   ========================================================================== */
+/* 资源卡、应用卡：悬停轻抬，强化“卡片是一层”的层次感。
+   只动 box-shadow / transform，不动背景 —— 不干扰 has-wall 毛玻璃。 */
+.stat-card {
+  transition:
+    box-shadow var(--t-base) var(--ease-standard),
+    border-color var(--t-base) var(--ease-standard),
+    transform var(--t-base) var(--ease-standard);
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+.app-card:hover {
+  transform: translateY(-2px);
+}
+
+/* 弹窗入场：比原来的 pop 更柔和，带一点点强调缓动 */
+.modal-box {
+  animation: polishModalIn var(--t-slow) var(--ease-emphasis) both;
+}
+@keyframes polishModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Toast：从右下角轻微弹出，贴合 toast-box 的定位方向 */
+.toast {
+  transform-origin: bottom right;
+  animation: polishToastIn var(--t-slow) var(--ease-emphasis) both;
+}
+@keyframes polishToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 标题类文字避免孤字断行（现代浏览器生效，老浏览器忽略，无副作用） */
+.hero-title,
+.tb-title,
+.doc h1 {
+  text-wrap: balance;
+}
+
+
+/* ==========================================================================
+   07 · 骨架屏（加载态，供页面按需加 class）
+   用法示例：
+     <div class="skel skel-card"></div>
+     <div class="skel-line"></div>
+     <div class="skel-line short"></div>
+   ========================================================================== */
+.skel {
+  position: relative;
+  overflow: hidden;
+  background: var(--skel-base);
+  border-radius: var(--r-sm);
+}
+.skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 18%,
+    var(--skel-hi) 46%,
+    transparent 74%
+  );
+  transform: translateX(-100%);
+  animation: skelShimmer 1.4s var(--ease-standard) infinite;
+  will-change: transform;
+}
+@keyframes skelShimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* 文本行占位：默认满宽，可用 short/mid 控制长度 */
+.skel-line {
+  height: 12px;
+  border-radius: 6px;
+  margin-bottom: 9px;
+}
+.skel-line:last-child {
+  margin-bottom: 0;
+}
+.skel-line.short {
+  width: 38%;
+}
+.skel-line.mid {
+  width: 62%;
+}
+.skel-line.long {
+  width: 84%;
+}
+
+/* 卡片 / 列表行占位 */
+.skel-card {
+  height: 84px;
+  border-radius: var(--r-md);
+}
+.skel-card.tall {
+  height: 128px;
+}
+.skel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 18px;
+}
+
+
+/* ==========================================================================
+   08 · 空状态（.empty 统一居中、图标弱化、次级文字）
+   ========================================================================== */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 96px;
+  padding: 34px 20px;
+  text-align: center;
+  color: var(--txt-3);
+  font-size: 13px;
+  line-height: 1.6;
+}
+/* 图标弱化，不抢文字焦点 */
+.empty .i {
+  width: 26px;
+  height: 26px;
+  opacity: .5;
+  stroke-width: 1.5;
+  color: var(--txt-3);
+}
+/* 主文案可以稍实一点，说明文字保持弱化 */
+.empty b,
+.empty strong {
+  color: var(--txt-2);
+  font-weight: 600;
+}
+.empty small,
+.empty .sub {
+  display: block;
+  font-size: 12px;
+  color: var(--txt-3);
+}
+/* 紧凑空态（如弹窗内小列表）保持原有小间距 */
+.empty.small {
+  min-height: 0;
+  gap: 4px;
+  padding: 16px 12px;
+  font-size: 12px;
+}
+.empty.small .i {
+  width: 20px;
+  height: 20px;
+}
+
+
+/* ==========================================================================
+   09 · 移动端细节（安全区 / 触控区 / 窄屏内边距收敛）
+   ========================================================================== */
+@media (max-width: 880px) {
+  /* 顶部安全区：iPhone 刘海 / 灵动岛（PWA 全屏时有效） */
+  .topbar {
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  }
+  .side {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  }
+
+  /* 底部导航：触控区 ≥44px，选中项带药丸底 */
+  .bottomnav {
+    padding: 6px 4px calc(4px + env(safe-area-inset-bottom, 0px));
+  }
+  .bn-item {
+    min-height: 46px;
+    justify-content: center;
+    border-radius: 12px;
+    padding: 5px 2px;
+  }
+  .bn-item.on {
+    background: var(--accent-soft);
+  }
+
+  /* 主内容留出底栏 + 安全区高度，避免最后一屏被遮住 */
+  main {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Toast 在手机上升级为“底栏之上”的横幅，避开底部导航 */
+  .toast-box {
+    left: 14px;
+    right: 14px;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    align-items: stretch;
+  }
+  .toast {
+    justify-content: flex-start;
+    transform-origin: bottom center;
+  }
+
+  /* 弹窗与灯箱也要躲开底部安全区 */
+  .modal {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+  .lightbox {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+  .lb-bar {
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* 窄屏（≤560px）：内边距进一步收敛，把宽度让给内容 */
+@media (max-width: 560px) {
+  main {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .block {
+    padding: 2px 12px 12px;
+  }
+  .stat-card {
+    padding: 12px 12px 10px;
+    gap: 7px;
+  }
+  .stats {
+    gap: 8px;
+  }
+  .row {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .pane-bar {
+    padding: 10px 12px;
+  }
+  .tabs {
+    padding: 10px 12px 0;
+  }
+  .appgrid,
+  .cards {
+    padding: 12px;
+  }
+  .form-block {
+    padding: 16px 14px;
+  }
+  .doc {
+    padding: 16px 12px 28px;
+  }
+  .gallery {
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: 6px;
+    padding: 10px;
+  }
+  .note-box {
+    margin: 0 12px 16px;
+  }
+  .toast-box {
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+
+/* ==========================================================================
+   10 · 深色模式微调（只作用于 [data-theme="dark"]）
+   --------------------------------------------------------------------------
+   说明：这里覆盖同名变量属于“主题内微调”，不是新增变量冲突：
+   · --txt-3 提亮一档，改善深色底上的次级文字对比度
+   · --line 发丝线略提亮，让卡片边界可见
+   · 叠加色改为白色系微透明，悬停更“干净”，不引入第二种彩色
+   ========================================================================== */
+[data-theme="dark"] {
+  --txt-3: #83918a;
+  --line: rgba(255, 255, 255, .095);
+  --hover-tint: rgba(255, 255, 255, .045);
+  --press-tint: rgba(255, 255, 255, .07);
+  --skel-base: rgba(255, 255, 255, .055);
+  --skel-hi: rgba(255, 255, 255, .11);
+  --scroll-thumb: rgba(255, 255, 255, .16);
+  --scroll-thumb-hover: rgba(255, 255, 255, .28);
+}
+
+/* 深色下按钮阴影改为纯黑，避免灰投影“发脏” */
+[data-theme="dark"] .btn:hover {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, .5),
+    0 10px 22px -16px rgba(0, 0, 0, .95);
+}
+[data-theme="dark"] .btn-primary:hover {
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, .4),
+    0 10px 22px -14px rgba(var(--accent-rgb), .55);
+}
+
+/* 深色下的选中色与空状态图标透明度略作补偿 */
+[data-theme="dark"] ::selection {
+  background: rgba(var(--accent-rgb), .3);
+}
+[data-theme="dark"] .empty .i {
+  opacity: .55;
+}
+
+
+/* ==========================================================================
+   11 · 减少动效（尊重系统“减弱动态效果”设置）
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  /* 用极短时长而非 animation:none，避免依赖动画结束事件的逻辑卡住 */
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* 骨架屏不再 shimmer，保持静态灰块 */
+  .skel::after {
+    display: none;
+  }
+  /* 取消位移类悬停反馈，只保留颜色变化 */
+  .btn:hover,
+  .btn-sm:hover,
+  .tile:hover,
+  .stat-card:hover,
+  .app-card:hover,
+  .nav-item:hover,
+  .bn-item:active {
+    transform: none;
+  }
+}

@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Covernas</title>
+<meta name="theme-color" content="#0f7b5f">
+<link rel="manifest" href="/static/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/static/pwa-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Covernas">
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/polish.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lg-badge" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1fbf94"/>
+      <stop offset=".55" stop-color="#0f9a74"/>
+      <stop offset="1" stop-color="#0a5c47"/>
+    </linearGradient>
+    <linearGradient id="lg-shine" x1="4" y1="2" x2="44" y2="24" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v12M8 12l4 4 4-4"/><path d="M4 18v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 13 9 5 9-5"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="6" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="m8.2 10.8 7.6-3.6M8.2 13.2l7.6 3.6"/></symbol>
+  <symbol id="i-hdd" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 15h.01M11 15h.01"/></symbol>
+  <symbol id="i-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></symbol>
+  <symbol id="i-photo" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 18 5-5 4 4 3-2 4 4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3"/><path d="M16 8l4 4-4 4M20 12H9"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1Z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 13 4 4L19 7"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><circle cx="7" cy="18" r="2.5"/><circle cx="18" cy="16" r="2.5"/><path d="M9.5 18V7l11-2v11"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 6 3.5-6 3.5Z"/></symbol>
+  <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h.01M8 15h2M12 15h2M16 15h.01M8 19h6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10-10a2.1 2.1 0 0 0-3-3L5 17Z"/><path d="m13.5 6.5 3 3"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5Z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></symbol>
+  <symbol id="i-shop" viewBox="0 0 24 24"><path d="M4 8h16l-1 12H5L4 8Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></symbol>
+  <symbol id="i-backup" viewBox="0 0 24 24"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3Z"/><path d="M4 7v10c0 1.7 3.6 3 8 3s8-1.3 8-3V7"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+  <symbol id="i-web" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M9 21h6"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2.5 8.5a15 15 0 0 1 19 0M5.5 12a10.5 10.5 0 0 1 13 0M8.5 15.5a6 6 0 0 1 7 0"/><circle cx="12" cy="19" r="1.4"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h6v17H6a2 2 0 0 0-2 2Z"/><path d="M20 5a2 2 0 0 0-2-2h-6v17h6a2 2 0 0 1 2 2Z"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></symbol>
+  <symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M18 5v14L8 12l10-7Z"/><path d="M5 5v14"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M6 5v14l10-7L6 5Z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3l3 3-3 3"/><path d="M20 6H7a4 4 0 0 0-4 4"/><path d="M7 21l-3-3 3-3"/><path d="M4 18h13a4 4 0 0 0 4-4"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M17 3l3 3-3 3"/><path d="M20 6h-4L6 18H3"/><path d="M17 18l3-3-3-3"/><path d="M20 15h-4l-3-3"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M6.5 6.5a8 8 0 1 0 11 0"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 18 5-5 4 4 3-2 4 4"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2s-.6-2-2-2h-1a3 3 0 0 1 0-6h4a3 3 0 0 0 3-3c0-3-2.7-5-6-5Z"/><circle cx="8" cy="9" r="1.2"/><circle cx="7" cy="14" r="1.2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="m7 15 4-5 3 3 5-7"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 4 12 2.5-6h5"/></symbol>
+  <symbol id="i-git" viewBox="0 0 24 24"><circle cx="7" cy="6" r="2.4"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="9" r="2.4"/><path d="M7 8.4v7.2M9.4 7.1a6 6 0 0 0 5.4 1.9"/></symbol>
+  <symbol id="i-node" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="18" r="2.2"/><circle cx="19" cy="18" r="2.2"/><path d="m10.7 7 4.6 9M13.3 7 8.7 16M7.2 18h9.6"/></symbol>
+  <symbol id="i-ship" viewBox="0 0 24 24"><path d="M3 15.5 12 20l9-4.5-2-1.8H5Z"/><path d="M7 13.5V7l5-3 5 3v6.5"/><path d="M10 13.5v-3h4v3"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-mobile" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 17.5h2"/></symbol>
+  <symbol id="i-logo" viewBox="0 0 48 48">
+    <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#lg-badge)"/>
+    <path d="M6 15 C6 8 12 4 24 4 C36 4 42 8 42 15 C42 18 40 20 37 21 L11 21 C8 20 6 18 6 15 Z" fill="url(#lg-shine)"/>
+    <path d="M14.8 30.6a6.2 6.2 0 0 1-1-12.3A8.2 8.2 0 0 1 29.6 12a8.8 8.8 0 0 1 9.2 8.2 6.2 6.2 0 0 1-1.6 12.2 6.2 6.2 0 0 1-1.1-.1Z" fill="#ffffff"/>
+    <path d="M15.5 35.5h17a2.4 2.4 0 0 0 2.4-2.4v-7.6h-21.8v7.6a2.4 2.4 0 0 0 2.4 2.4Z" fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="19.6" cy="30.4" r="1.15" fill="#ffffff"/>
+    <circle cx="24" cy="30.4" r="1.15" fill="#ffffff"/>
+    <circle cx="28.4" cy="30.4" r="1.15" fill="#ffffff"/>
+  </symbol>
+</svg>
+
+<div class="shell">
+  <div class="menu-mask" id="menuMask" hidden></div>
+  <aside class="side" id="sideBar">
+    <div class="brand">
+      <span class="brand-mark"><svg class="logo-ic"><use href="#i-logo"/></svg></span>
+      <span class="brand-txt"><b class="brand-name">Covernas</b><span class="brand-tag">家庭服务器</span></span>
+    </div>
+    <nav class="nav" id="sideNav"></nav>
+    <div class="side-foot">
+      <span class="side-meta" id="sideUp">—</span>
+      <span class="side-meta" id="meLine"></span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="tb-left">
+        <button class="tb-menu" id="menuBtn" title="菜单" aria-label="菜单">
+          <svg class="i"><use href="#i-menu"/></svg>
+        </button>
+        <button class="tb-back" id="backBtn" title="返回桌面" hidden>
+          <svg class="i"><use href="#i-back"/></svg>
+        </button>
+        <h1 class="tb-title" id="pageTitle">桌面</h1>
+      </div>
+      <div class="tb-stats">
+        <span class="stat"><i>CPU</i><b id="stCpu">0%</b></span>
+        <span class="stat"><i>内存</i><b id="stMem">0%</b></span>
+        <span class="stat"><i>温度</i><b id="stTemp">—</b></span>
+        <span class="stat stat-wide"><i>网络</i><b id="stNet">↓0 ↑0</b></span>
+        <button class="tb-search" id="searchBtn" title="搜索（Ctrl/⌘ + K）" aria-label="全局搜索">
+          <svg class="i"><use href="#i-search"/></svg>
+        </button>
+        <span class="clock" id="clock">--:--</span>
+      </div>
+    </header>
+
+<main>
+  <!-- 桌面 -->
+  <section class="view is-active" id="view-desktop">
+    <div class="hero">
+      <div class="hero-txt">
+        <h2 class="hero-title" id="greeting">你好</h2>
+        <p class="hero-sub" id="sysLine">正在读取系统状态…</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="heroRefresh">
+        <svg class="i"><use href="#i-refresh"/></svg>刷新
+      </button>
+    </div>
+
+    <div class="stats">
+      <article class="stat-card">
+        <div class="sc-head"><span>处理器</span><b id="mCpu">0%</b></div>
+        <div class="viz">
+          <svg class="spark" id="spCpu" viewBox="0 0 240 40" preserveAspectRatio="none">
+            <polygon class="sp-fill" points=""/><polyline class="sp-line" points=""/>
+          </svg>
+        </div>
+        <div class="sc-sub" id="mCpuSub">—</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="sc-head"><span>内存</span><b id="mMem">0%</b></div>
+        <div class="viz">
+          <svg class="spark" id="spMem" viewBox="0 0 240 40" preserveAspectRatio="none">
+            <polygon class="sp-fill" points=""/><polyline class="sp-line" points=""/>
+          </svg>
+        </div>
+        <div class="sc-sub" id="mMemSub">—</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="sc-head"><span>存储</span><b id="mDisk">0%</b></div>
+        <div class="viz viz-center">
+          <div class="stackbar" id="mDiskBar">
+            <i id="bDisk" style="width:0"></i>
+          </div>
+        </div>
+        <div class="sc-sub" id="mDiskSub">—</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="sc-head"><span>温度</span><b id="mTemp">—</b></div>
+        <div class="viz">
+          <svg class="spark" id="spTemp" viewBox="0 0 240 40" preserveAspectRatio="none">
+            <polygon class="sp-fill" points=""/><polyline class="sp-line" points=""/>
+          </svg>
+        </div>
+        <div class="sc-sub" id="mTempSub">—</div>
+      </article>
+    </div>
+
+    <section class="block" id="appsBlock">
+      <div class="block-head">
+        <h3>应用</h3>
+        <button class="link" id="appsAll">全部入口 ›</button>
+      </div>
+      <div class="desk" id="deskGrid"></div>
+    </section>
+
+    <section class="block" id="recentBlock">
+      <div class="block-head">
+        <h3>最近的文件</h3>
+        <button class="link" id="recentAll">打开全部 ›</button>
+      </div>
+      <div class="recent-list" id="recentList"><span class="muted small">加载中…</span></div>
+    </section>
+  </section>
+
+  <!-- 文件 -->
+  <section class="view" id="view-files">
+    <div class="pane">
+      <div class="pane-bar">
+        <div class="crumbs" id="crumbs"></div>
+        <span class="ro-hint" id="roHint" hidden><svg class="i"><use href="#i-lock"/></svg>系统目录 · 只读保护</span>
+        <div class="pane-actions">
+          <input class="search" id="fileSearch" placeholder="搜索当前目录" autocomplete="off">
+          <select class="sel" id="fileSort">
+            <option value="name">名称</option>
+            <option value="time">时间</option>
+            <option value="size">大小</option>
+            <option value="type">类型</option>
+          </select>
+          <select class="sel" id="fileView">
+            <option value="list">为列表</option>
+            <option value="icons">为图标</option>
+            <option value="cols">为分栏</option>
+            <option value="gallery">为画廊</option>
+          </select>
+          <button class="btn btn-sm" id="btnUpload"><svg class="i"><use href="#i-upload"/></svg>上传</button>
+          <button class="btn btn-sm" id="btnNewFile"><svg class="i"><use href="#i-plus"/></svg>新建文件</button>
+          <button class="btn btn-sm" id="btnMkdir"><svg class="i"><use href="#i-folder"/></svg>新建文件夹</button>
+          <button class="btn btn-sm btn-ghost" id="btnRefresh"><svg class="i"><use href="#i-refresh"/></svg></button>
+        </div>
+      </div>
+
+      <div class="selbar" id="selBar" hidden>
+        <span id="selText">已选 0 项</span>
+        <div class="selbar-actions">
+          <button class="btn btn-sm" data-sel="copy">复制</button>
+          <button class="btn btn-sm" data-sel="cut">剪切</button>
+          <button class="btn btn-sm btn-danger" data-sel="del">删除</button>
+          <button class="btn btn-sm btn-ghost" data-sel="clear">取消</button>
+        </div>
+      </div>
+
+      <div class="clipbar" id="clipBar" hidden>
+        <span id="clipText"></span>
+        <button class="btn btn-sm btn-primary" id="btnPaste">粘贴到此处</button>
+        <button class="btn btn-sm btn-ghost" id="btnClipCancel">取消</button>
+      </div>
+
+      <div class="list" id="fileList"></div>
+      <div class="drop-hint" id="dropHint">松开以上传到当前目录</div>
+    </div>
+  </section>
+
+  <!-- 服务 -->
+  <section class="view" id="view-services">
+    <div class="pane">
+      <div class="pane-bar"><h2>系统服务</h2><span class="muted" id="svcCount">—</span></div>
+      <div class="list" id="svcList"></div>
+    </div>
+  </section>
+
+  <!-- 存储 -->
+  <section class="view" id="view-storage">
+    <div class="pane">
+      <div class="pane-bar"><span class="pane-bar-sub">eMMC 与外接盘</span></div>
+      <div class="store" id="storeList"></div>
+      <pre class="code" id="lsblk"></pre>
+    </div>
+  </section>
+
+  <!-- 相册 -->
+  <section class="view" id="view-photos">
+    <div class="pane">
+      <div class="pane-bar">
+        <select class="sel" id="photoAlbum"></select>
+        <select class="sel" id="photoDir"></select>
+        <span class="muted" id="photoCount">—</span>
+        <div class="pane-actions">
+          <select class="sel" id="photoView">
+            <option value="gallery">为画廊</option>
+            <option value="icons">为图标</option>
+            <option value="list">为列表</option>
+          </select>
+          <button class="btn btn-sm btn-ghost" id="albumNew"><svg class="i"><use href="#i-plus"/></svg>相册</button>
+          <button class="btn btn-sm btn-ghost" id="photoSlides"><svg class="i"><use href="#i-play"/></svg>幻灯片</button>
+          <button class="btn btn-sm btn-ghost" id="photoRefresh"><svg class="i"><use href="#i-refresh"/></svg></button>
+        </div>
+      </div>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </section>
+
+  <!-- 媒体播放 -->
+  <section class="view" id="view-media">
+    <div class="pane">
+      <div class="pane-bar">
+        <select class="sel" id="mediaDir"></select>
+        <span class="muted" id="mediaCount">—</span>
+        <div class="pane-actions">
+          <select class="sel" id="mediaSpeed">
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+          <button class="btn btn-sm btn-ghost" id="videoNext">下一集</button>
+          <button class="btn btn-sm btn-ghost" id="mediaRefresh"><svg class="i"><use href="#i-refresh"/></svg></button>
+        </div>
+      </div>
+      <div class="player-box" id="videoBox" hidden>
+        <video id="videoEl" controls playsinline preload="metadata"></video>
+        <div class="player-name" id="videoName"></div>
+      </div>
+      <div class="list" id="mediaList"></div>
+    </div>
+  </section>
+
+  <!-- 音乐 -->
+  <section class="view" id="view-music">
+    <div class="pane">
+      <div class="mp">
+        <div class="mp-cover" id="mpCover"><svg class="i"><use href="#i-music"/></svg></div>
+        <div class="mp-main">
+          <div class="mp-meta">
+            <b id="mpTitle">未在播放</b>
+            <span id="mpSub">点下面的歌曲开始播放</span>
+          </div>
+          <div class="mp-bar">
+            <span class="mp-time" id="mpCur">0:00</span>
+            <input type="range" class="mp-seek" id="mpSeek" min="0" max="1000" value="0">
+            <span class="mp-time" id="mpDur">0:00</span>
+          </div>
+        </div>
+        <div class="mp-ctrl">
+          <button class="mp-btn" id="mpPrev" title="上一首"><svg class="i"><use href="#i-prev"/></svg></button>
+          <button class="mp-btn mp-play" id="mpPlay" title="播放/暂停"><svg class="i"><use href="#i-play"/></svg></button>
+          <button class="mp-btn" id="mpNext" title="下一首"><svg class="i"><use href="#i-next"/></svg></button>
+          <button class="mp-btn" id="mpLoop" title="循环模式"><svg class="i"><use href="#i-repeat"/></svg></button>
+          <button class="mp-btn" id="mpShuffle" title="随机播放"><svg class="i"><use href="#i-shuffle"/></svg></button>
+          <input type="range" class="mp-vol" id="mpVol" min="0" max="100" value="80" title="音量">
+        </div>
+        <audio id="audioEl" preload="metadata"></audio>
+      </div>
+      <div class="pane-bar"><span class="pane-bar-sub" id="musicCount">—</span>
+        <select class="sel" id="musicDir"></select>
+      </div>
+      <div class="list" id="musicList"></div>
+    </div>
+  </section>
+
+  <!-- 记事本 -->
+  <section class="view" id="view-notes">
+    <div class="pane notes-pane">
+      <div class="notes-side">
+        <div class="pane-bar"><h2>记事本</h2><button class="btn btn-sm" id="noteNew"><svg class="i"><use href="#i-plus"/></svg></button></div>
+        <div class="list" id="noteList"></div>
+      </div>
+      <div class="notes-main">
+        <input class="note-title" id="noteTitle" placeholder="标题" maxlength="80">
+        <textarea class="note-body" id="noteBody" placeholder="随便写点什么…"></textarea>
+        <div class="note-bar">
+          <button class="btn btn-sm btn-primary" id="noteSave"><svg class="i"><use href="#i-save"/></svg>保存</button>
+          <button class="btn btn-sm btn-ghost" id="noteDel">删除</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 计算器 -->
+  <section class="view" id="view-calc">
+    <div class="pane calc-pane">
+      <div class="calc-screen" id="calcScreen">0</div>
+      <div class="calc-keys" id="calcKeys"></div>
+    </div>
+  </section>
+
+  <!-- 计划任务 -->
+  <section class="view" id="view-cron">
+    <div class="pane">
+      <div class="pane-bar"><h2>计划任务</h2>
+        <span class="muted" id="cronCount">—</span>
+        <div class="pane-actions">
+          <button class="btn btn-sm btn-ghost" id="cronRawBtn">原始文本</button>
+          <button class="btn btn-sm btn-primary" id="cronSave">保存</button>
+        </div>
+      </div>
+      <div class="list" id="cronList"></div>
+
+      <form class="cron-form" id="cronForm">
+        <div class="cron-inputs">
+          <label class="mini-field"><span>分</span><input name="m" value="0" maxlength="12"></label>
+          <label class="mini-field"><span>时</span><input name="h" value="3" maxlength="12"></label>
+          <label class="mini-field"><span>日</span><input name="dom" value="*" maxlength="12"></label>
+          <label class="mini-field"><span>月</span><input name="mon" value="*" maxlength="12"></label>
+          <label class="mini-field"><span>周</span><input name="dow" value="*" maxlength="12"></label>
+          <button class="btn btn-sm" type="button" id="cronPreset">常用</button>
+        </div>
+        <label class="field"><span>要执行的命令</span>
+          <input name="cmd" placeholder="/usr/bin/rsync -a /mnt/docs/ /mnt/backup/docs/">
+        </label>
+        <button class="btn btn-primary" type="submit">添加任务</button>
+      </form>
+
+      <div id="cronRaw" hidden>
+        <textarea class="cron-editor" id="cronText" spellcheck="false"
+          placeholder="# 每行一个任务：分 时 日 月 周 命令"></textarea>
+        <div class="cron-tip muted small">这一页是原始 crontab，改完点右上角「保存」。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Docker -->
+  <section class="view" id="view-docker">
+    <div class="pane">
+      <div class="pane-bar"><h2>容器</h2><span class="muted" id="dockerVer">—</span></div>
+      <div class="list" id="dockerList"></div>
+      <form class="form-block" id="dockerForm">
+        <h3>运行新容器</h3>
+        <label class="field"><span>镜像</span><input name="image" placeholder="alistgo/alist:latest" required></label>
+        <label class="field"><span>容器名</span><input name="name" placeholder="留空自动生成"></label>
+        <label class="field"><span>端口映射</span><input name="ports" placeholder="5244:5244, 8080:80"></label>
+        <label class="field"><span>目录挂载</span><input name="volumes" placeholder="/mnt/app/data:/data"></label>
+        <label class="field"><span>环境变量</span><input name="envs" placeholder="TZ=Asia/Shanghai, PUID=1000"></label>
+        <button class="btn btn-primary" type="submit">运行</button>
+      </form>
+      <div class="note-box">armv7 上很多镜像没有对应版本，拉取失败就是架构不支持，不是网络问题。查看日志能看到具体原因。</div>
+    </div>
+  </section>
+
+  <!-- 应用商店 -->
+  <section class="view" id="view-store">
+    <div class="pane">
+      <div class="pane-bar">
+        <h2>应用商店</h2>
+        <span class="muted" id="storeCount">—</span>
+        <div class="pane-actions">
+          <button class="btn btn-sm btn-ghost" id="storeRefresh"><svg class="i"><use href="#i-refresh"/></svg>刷新</button>
+        </div>
+      </div>
+      <div class="tabs" id="storeTabs"></div>
+      <div class="appgrid" id="storeGrid"></div>
+      <p class="muted small pad">装在设备上的都是系统软件包，装完会在「后端服务」里多出对应服务。写着「已装」的是内置组件，不用重复装。</p>
+    </div>
+  </section>
+
+  <!-- 网络共享 -->
+  <section class="view" id="view-share">
+    <div class="pane">
+      <div class="pane-bar">
+        <div class="tabs tabs-line" id="shareTabs">
+          <button class="tab on" data-t="samba">SMB</button>
+          <button class="tab" data-t="nfs">NFS</button>
+          <button class="tab" data-t="ftp">FTP</button>
+          <button class="tab" data-t="webdav">WebDAV</button>
+        </div>
+      </div>
+
+      <!-- SMB -->
+      <div class="share-tab" id="st-samba">
+        <div class="list" id="shareList"></div>
+        <div class="share-grid">
+          <div class="form-block">
+            <h3>新建共享目录</h3>
+            <form id="shareForm">
+              <label class="field"><span>共享名</span><input name="name" placeholder="docs" required></label>
+              <label class="field"><span>目录</span><input name="path" value="/mnt" required></label>
+              <label class="field"><span>备注</span><input name="comment" placeholder="可选"></label>
+              <div class="check-row">
+                <label class="check"><input type="checkbox" name="writable" checked> 允许写入</label>
+                <label class="check"><input type="checkbox" name="guest" checked> 允许访客免密码</label>
+              </div>
+              <button class="btn btn-primary" type="submit">创建共享</button>
+            </form>
+          </div>
+          <div class="form-block">
+            <h3>SMB 用户</h3>
+            <div class="list list-compact" id="smbUserList"></div>
+            <form id="smbUserForm" class="smb-user-form">
+              <div class="field-row">
+                <label class="field"><span>用户名</span><input name="user" placeholder="xiaoming" pattern="[a-z_][a-z0-9_-]{0,20}" required></label>
+                <label class="field"><span>密码</span><input name="password" type="password" placeholder="至少 4 位" minlength="4" required></label>
+              </div>
+              <button class="btn btn-sm btn-primary" type="submit">添加用户</button>
+            </form>
+          </div>
+        </div>
+        <div class="note-box" id="shareHint"></div>
+      </div>
+
+      <!-- NFS -->
+      <div class="share-tab" id="st-nfs" hidden>
+        <div class="list" id="nfsList"></div>
+        <div class="form-block">
+          <h3>导出目录</h3>
+          <form id="nfsForm">
+            <label class="field"><span>目录</span><input name="path" value="/mnt" required></label>
+            <label class="field"><span>允许的客户端</span><input name="clients" placeholder="* 或 192.168.1.0/24" required></label>
+            <label class="check"><input type="checkbox" name="ro"> 只读</label>
+            <button class="btn btn-sm btn-primary" type="submit">添加导出</button>
+          </form>
+        </div>
+        <div class="note-box">NFS 适合 Linux 和播放器挂载。客户端写 * 表示局域网内所有机器。</div>
+      </div>
+
+      <!-- FTP -->
+      <div class="share-tab" id="st-ftp" hidden>
+        <div class="form-block">
+          <h3>FTP 服务</h3>
+          <p class="muted small" id="ftpState">—</p>
+          <form id="ftpForm">
+            <label class="field"><span>共享目录</span><input name="root" value="/mnt" required></label>
+            <label class="field"><span>用户名</span><input name="user" value="share" required></label>
+            <label class="field"><span>密码</span><input name="password" type="password" placeholder="留空则不修改" minlength="4"></label>
+            <button class="btn btn-sm btn-primary" type="submit">保存并启动</button>
+          </form>
+        </div>
+        <div class="note-box">FTP 默认端口 21，主动/被动模式端口 30000–30100。客户端用 <code>ftp://&lt;设备IP&gt;</code> 连接。</div>
+      </div>
+
+      <!-- WebDAV -->
+      <div class="share-tab" id="st-webdav" hidden>
+        <div class="form-block">
+          <h3>WebDAV 服务</h3>
+          <p class="muted small" id="webdavState">—</p>
+          <form id="webdavForm">
+            <label class="field"><span>共享目录</span><input name="path" value="/mnt" required></label>
+            <label class="field"><span>用户名</span><input name="user" value="webdav" required></label>
+            <label class="field"><span>密码</span><input name="password" type="password" placeholder="至少 4 位" minlength="4" required></label>
+            <label class="field"><span>端口</span><input name="port" value="8082"></label>
+            <button class="btn btn-sm btn-primary" type="submit">保存并启动</button>
+          </form>
+        </div>
+        <div class="note-box">WebDAV 由 rclone 提供。手机端用支持 WebDAV 的文件 App 连接 <code>http://&lt;设备IP&gt;:8082</code>。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 磁盘备份 -->
+  <section class="view" id="view-backup">
+    <div class="pane">
+      <div class="pane-bar"><h2>磁盘备份</h2><span class="muted" id="backupCount">—</span></div>
+      <div class="list" id="backupList"></div>
+      <form class="form-block" id="backupForm">
+        <h3>新建备份任务</h3>
+        <label class="field"><span>任务名</span><input name="name" placeholder="照片备份" required></label>
+        <label class="field"><span>源目录</span><input name="src" value="/mnt" required></label>
+        <label class="field"><span>目标目录</span><input name="dst" value="/mnt/backup" required></label>
+        <label class="check"><input type="checkbox" name="mirror" checked> 镜像模式（目标端多余文件会被删除）</label>
+        <button class="btn btn-primary" type="submit">保存任务</button>
+      </form>
+      <div class="note-box">备份用的是 rsync，只传有变化的文件。目标目录建议放在另一块盘上——同一块盘上备份，盘坏了会一起丢。</div>
+    </div>
+  </section>
+
+  <!-- 部署网站 -->
+  <section class="view" id="view-site">
+    <div class="pane">
+      <div class="pane-bar"><h2>部署网站</h2><span class="muted" id="siteState">—</span></div>
+      <div class="list" id="siteList"></div>
+      <form class="form-block" id="siteForm">
+        <h3>新建站点</h3>
+        <label class="field"><span>站点名</span><input name="name" placeholder="blog" pattern="[a-z0-9\-]{2,24}" required></label>
+        <label class="field"><span>端口</span><input name="port" placeholder="留空自动分配"></label>
+        <button class="btn btn-primary" type="submit">创建</button>
+      </form>
+      <div class="note-box" id="siteHint">站点目录在 <code>/mnt/www/&lt;站点名&gt;</code>，把网页文件放进去就能访问。</div>
+    </div>
+  </section>
+
+  <!-- 远程访问 -->
+  <section class="view" id="view-remote">
+    <div class="pane">
+      <div class="pane-bar"><h2>远程访问</h2><span class="muted" id="remoteIp">—</span></div>
+      <div class="cards" id="remoteList"></div>
+      <form class="form-block" id="ddnsForm">
+        <h3>DDNS 动态域名（Cloudflare）</h3>
+        <label class="field"><span>域名</span><input name="domain" placeholder="home.example.com"></label>
+        <label class="field"><span>API Token</span><input name="token" type="password" placeholder="Cloudflare 的 Zone.DNS 编辑令牌"></label>
+        <label class="check"><input type="checkbox" name="enabled"> 启用（每 5 分钟自动更新 A 记录）</label>
+        <button class="btn btn-primary" type="submit">保存</button>
+      </form>
+      <div class="note-box">家宽的公网 IP 会变，DDNS 把域名始终指向当前 IP。<b>不建议直接把本机端口暴露到公网</b>——用 Tailscale 或 frp 这类方案更安全。</div>
+    </div>
+  </section>
+
+  <!-- 任务管理器 -->
+  <section class="view" id="view-tasks">
+    <div class="pane">
+      <div class="pane-bar">
+        <span class="pane-bar-sub" id="taskCount">—</span>
+        <div class="pane-actions">
+          <button class="btn btn-sm btn-ghost" id="taskRefresh"><svg class="i"><use href="#i-refresh"/></svg>刷新</button>
+        </div>
+      </div>
+      <div class="list" id="taskList"></div>
+      <div class="note-box">按 CPU 占用排序，最多显示 80 个进程。结束系统关键进程可能导致异常，请谨慎。</div>
+    </div>
+  </section>
+
+  <!-- 系统维护 -->
+  <section class="view" id="view-maintain">
+    <div class="pane">
+      <div class="pane-bar"><span class="pane-bar-sub">更新、清理、诊断与电源</span></div>
+      <div class="form-block">
+        <h3>磁盘健康</h3>
+        <div class="btn-row">
+          <select class="sel" id="smartDev">
+            <option value="/dev/mmcblk1">eMMC (/dev/mmcblk1)</option>
+            <option value="/dev/sda">外接盘 (/dev/sda)</option>
+          </select>
+          <button class="btn btn-sm" id="smartCheck">检查</button>
+        </div>
+        <p class="muted small" id="smartResult" style="margin-top:10px"></p>
+      </div>
+      <div class="form-block">
+        <h3>维护操作</h3>
+        <div class="btn-row">
+          <button class="btn btn-sm" id="btnClean">系统清理</button>
+          <button class="btn btn-sm" id="btnUpdate">系统更新</button>
+          <button class="btn btn-sm" id="btnDiagnose">故障诊断</button>
+        </div>
+        <p class="muted small" style="margin-top:12px">清理会删除 apt 缓存、3 天前的日志和临时文件；更新会先 apt update 再 upgrade，在 armv7 上可能耗时较长。</p>
+      </div>
+      <div class="form-block">
+        <h3>配置备份与恢复</h3>
+        <div class="btn-row">
+          <button class="btn btn-sm" id="cfgExport"><svg class="i"><use href="#i-download"/></svg>导出配置包</button>
+          <button class="btn btn-sm btn-ghost" id="cfgImportBtn"><svg class="i"><use href="#i-upload"/></svg>从配置包恢复</button>
+        </div>
+        <p class="muted small" style="margin-top:12px">包含外观与壁纸、分享链接、计划任务、Samba / NFS / FTP / WebDAV、站点配置；<b>不含</b>登录密码与恢复码。恢复后会自动重载相关服务。</p>
+        <p class="muted small" id="cfgResult" style="margin-top:8px"></p>
+      </div>
+      <div class="form-block">
+        <h3>电源</h3>
+        <div class="btn-row">
+          <button class="btn btn-sm btn-ghost" id="btnReboot">重启设备</button>
+          <button class="btn btn-sm btn-danger" id="btnShutdown">关机</button>
+        </div>
+        <p class="muted small" style="margin-top:12px">关机后需要手动拔插电源才能再次开机（玩客云没有硬件开机键）。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 分享链接 -->
+  <section class="view" id="view-shares">
+    <div class="pane">
+      <div class="pane-bar"><span class="pane-bar-sub">生成免登录的下载链接</span></div>
+      <div class="list" id="shareLinkList"></div>
+      <div class="form-block">
+        <h3>新建分享</h3>
+        <form id="shareLinkForm">
+          <label class="field"><span>文件或文件夹路径</span><input name="path" placeholder="/mnt/downloads/电影.mp4" required></label>
+          <button class="btn btn-sm btn-primary" type="submit">生成链接</button>
+        </form>
+      </div>
+      <div class="note-box">生成的链接形如 <code>/s/xxxx</code>，局域网内任何人拿到链接都能下载，无需登录。不再需要时请及时删除。</div>
+    </div>
+  </section>
+
+  <!-- 操作日志 -->
+  <section class="view" id="view-audit">
+    <div class="pane">
+      <div class="pane-bar">
+        <span class="pane-bar-sub">登录、文件、服务、容器等操作都会记在这里</span>
+        <div class="pane-actions">
+          <input class="inp inp-sm" id="auditSearch" placeholder="搜关键词…">
+          <select class="sel sel-sm" id="auditEvent">
+            <option value="">全部类型</option>
+            <option value="登录成功">登录成功</option>
+            <option value="登录失败">登录失败</option>
+            <option value="服务操作">服务操作</option>
+            <option value="容器操作">容器操作</option>
+            <option value="删除文件">删除文件</option>
+            <option value="上传文件">上传文件</option>
+            <option value="配置导出">配置导出</option>
+            <option value="配置恢复">配置恢复</option>
+            <option value="修改密码">修改密码</option>
+            <option value="api">其他操作</option>
+          </select>
+          <button class="btn btn-sm" id="auditRefresh"><svg class="i"><use href="#i-refresh"/></svg>刷新</button>
+        </div>
+      </div>
+      <p class="audit-stat muted small" id="auditStat">—</p>
+      <div class="audit-list" id="auditList"><div class="empty">加载中…</div></div>
+    </div>
+  </section>
+
+  <!-- 我的设备 -->
+  <section class="view" id="view-device">
+    <div class="pane">
+      <div class="dev-head">
+        <div class="dev-logo"><svg class="logo-ic"><use href="#i-logo"/></svg></div>
+        <div class="dev-title">
+          <b class="brand-name dev-name">Covernas</b>
+          <span id="devSub">—</span>
+        </div>
+      </div>
+      <div class="dev-grid" id="devGrid"></div>
+    </div>
+  </section>
+
+  <!-- 使用说明 -->
+  <section class="view" id="view-help">
+    <div class="pane doc" id="helpDoc">
+      <h1>Covernas 使用说明</h1>
+      <p class="lead">Covernas 家庭服务器 V1.0 · 开发者 XCR。一台玩客云（ARMv7 / 1GB 内存 / 8GB eMMC）运行的自研 NAS 面板：文件、相册、媒体、下载、备份、建站一站式管理。</p>
+
+      <h2>快速上手</h2>
+      <ul>
+        <li><b>面板入口</b>：浏览器打开 <code>http://设备IP</code>（默认 80 端口），首次使用请先在「设置 → 修改密码」改掉初始密码。</li>
+        <li><b>手机访问</b>：手机连同一 WiFi，打开「设置 → 手机访问」扫二维码直达；页面已适配手机屏幕。</li>
+        <li><b>传文件</b>：「我的存储」点「上传」或直接把文件拖进页面；支持多选、复制/剪切/粘贴、压缩解压、分享链接。</li>
+        <li><b>看照片看视频</b>：「相册」自动扫描 /mnt 里的图片，「媒体播放」播视频（记住进度、倍速），「音乐」播音频。</li>
+      </ul>
+
+      <h2>数据放哪里</h2>
+      <ul>
+        <li>所有个人数据放 <code>/mnt</code>（外接盘）；删掉的文件进回收站（<code>/mnt/.trash</code>），可随时找回或清空。</li>
+        <li><b>系统目录受保护</b>：/etc、/usr 等系统路径在面板里只读，防止误删系统文件。</li>
+        <li>下载类软件默认目录：<code>/mnt/downloads</code>；网站文件放 <code>/mnt/www</code>。</li>
+      </ul>
+
+      <h2>局域网共享</h2>
+      <ul>
+        <li><b>Windows/Mac</b>：访达/资源管理器访问 <code>smb://设备IP</code>，账号密码在「网络共享 → SMB」里管理。</li>
+        <li><b>NFS / FTP / WebDAV</b>：在「网络共享」里按需开启，适合机顶盒、电视、备份软件对接。</li>
+      </ul>
+
+      <h2>下载与远程</h2>
+      <ul>
+        <li><b>Aria2 下载中心</b>：面板「下载中心」入口，HTTP/磁力/种子都行。</li>
+        <li><b>BT 下载</b>：Transmission（<code>:9091</code>），PT 做种友好。</li>
+        <li><b>出门在外</b>：「远程访问」里配置 Tailscale（推荐）或 frp 内网穿透，不建议直接把端口暴露到公网。</li>
+      </ul>
+
+      <h2>维护与故障</h2>
+      <ul>
+        <li>服务启停/日志：「后端服务」；进程占用：「任务管理器」；磁盘健康：「系统维护 → 磁盘健康（SMART）」。</li>
+        <li>面板日志：「设置 → 面板日志」；面板异常可「设置 → 重启面板」，不影响其他服务。</li>
+        <li>忘记密码：SSH 登录后查看 <code>/etc/box/recovery-key</code>，在登录页「忘记密码」用恢复码重置。</li>
+        <li>SSH：<code>ssh root@设备IP</code>。终端 banner 输入 <code>tips</code> 有命令提示。</li>
+      </ul>
+
+      <h2>这台机器的底线</h2>
+      <ul>
+        <li><b>1GB 内存</b>：常驻服务别贪多，Java/数据库/转码跑不动。</li>
+        <li><b>8GB eMMC</b>：系统只占一小半，但日志和缓存要定期清（「系统维护 → 系统清理」）。</li>
+        <li><b>ARMv7 + USB2.0</b>：装软件认准 armhf 包；硬盘实际读写约 35MB/s。</li>
+      </ul>
+
+      <h2>备份</h2>
+      <p>面板代码在 <code>/opt/box</code>，配置在 <code>/etc/box</code>，整机备份在 <code>/root/box-backup-*</code>。数据备份用「磁盘备份」做 rsync 定时同步到外接盘。</p>
+    </div>
+  </section>
+
+  <!-- 设置 -->
+  <section class="view" id="view-settings">
+    <div class="pane">
+      <div class="form-block">
+        <h3>外观</h3>
+        <div class="seg" id="themeSeg">
+          <button type="button" data-theme="light">浅色</button>
+          <button type="button" data-theme="dark">深色</button>
+          <button type="button" data-theme="auto">跟随系统</button>
+        </div>
+        <p class="muted small" style="margin:10px 0 6px">主题色</p>
+        <div class="accent-row" id="accentRow">
+          <button type="button" class="accent-dot" data-accent="#0f7b5f" style="background:#0f7b5f" title="深绿"></button>
+          <button type="button" class="accent-dot" data-accent="#2563eb" style="background:#2563eb" title="蓝"></button>
+          <button type="button" class="accent-dot" data-accent="#7c3aed" style="background:#7c3aed" title="紫"></button>
+          <button type="button" class="accent-dot" data-accent="#db2777" style="background:#db2777" title="粉"></button>
+          <button type="button" class="accent-dot" data-accent="#ea580c" style="background:#ea580c" title="橙"></button>
+          <button type="button" class="accent-dot" data-accent="#ca8a04" style="background:#ca8a04" title="金"></button>
+          <button type="button" class="accent-dot" data-accent="#0891b2" style="background:#0891b2" title="青"></button>
+          <label class="accent-dot accent-custom" title="自定义颜色">
+            <input type="color" id="accentPicker" value="#0f7b5f">
+          </label>
+        </div>
+        <p class="muted small" style="margin:14px 0 6px">壁纸</p>
+        <div class="wall-grid" id="wallGrid"></div>
+        <div class="wall-row">
+          <div class="wall-preview" id="wallPreview"><span>壁纸预览</span></div>
+          <div class="wall-actions">
+            <button class="btn btn-sm" type="button" id="wallShuffleBtn">
+              <svg class="i"><use href="#i-shuffle"/></svg>换一张
+            </button>
+            <button class="btn btn-sm" type="button" id="wallUploadBtn">
+              <svg class="i"><use href="#i-image"/></svg>上传壁纸
+            </button>
+            <button class="btn btn-sm btn-ghost" type="button" id="wallResetBtn">恢复默认</button>
+            <p class="muted small">选一张壁纸后，面板会以半透明毛玻璃叠加在上面；自定义上传支持 jpg / png / webp，建议 1920×1080 以上、不超过 12MB</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-block">
+        <h3>首页卡片顺序</h3>
+        <div class="order-list" id="orderList"></div>
+        <p class="muted small">调整首页四张资源卡的排列顺序，改完立即生效。</p>
+      </div>
+
+      <div class="form-block admin-only" id="usersBlock" hidden>
+        <h3><svg class="i"><use href="#i-lock"/></svg> 账号管理</h3>
+        <div class="user-list" id="userList"></div>
+        <form class="user-add" id="userAddForm" autocomplete="off">
+          <input class="inp" name="name" placeholder="用户名" maxlength="20" required>
+          <input class="inp" name="password" type="password" placeholder="密码（至少 8 位）" minlength="8" required>
+          <select class="sel" name="role">
+            <option value="viewer">只读</option>
+            <option value="admin">管理员</option>
+          </select>
+          <button class="btn btn-sm btn-primary" type="submit"><svg class="i"><use href="#i-plus"/></svg>添加账号</button>
+        </form>
+        <p class="muted small">只读账号可以浏览、播放、下载和查看日志，但不能改文件、启停服务或改设置。管理员可以管理账号与全部功能。</p>
+      </div>
+
+      <div class="form-block" id="mobileAccessBlock">
+        <h3><svg class="i"><use href="#i-mobile"/></svg> 手机访问</h3>
+        <div class="mobile-access">
+          <div class="qr-box" id="qrBox"><span class="muted small">生成中…</span></div>
+          <div class="mobile-info">
+            <p class="mobile-url mono" id="mobileUrl">—</p>
+            <p class="muted small">手机连同一 WiFi，用相机或浏览器扫上面的二维码即可打开面板。页面已适配手机屏幕；也可手动输入地址。</p>
+            <p class="muted small">SMB 文件共享：<span class="mono" id="mobileSmb">—</span>（Mac 访达 ⌘K / Windows 运行栏输入）</p>
+          </div>
+        </div>
+      </div>
+
+      <form class="form-block" id="pwForm">
+        <h3>修改密码</h3>
+        <label class="field"><span>当前密码</span><input type="password" name="old" required></label>
+        <label class="field"><span>新密码</span><input type="password" name="new" minlength="8" required></label>
+        <button class="btn btn-primary" type="submit">保存</button>
+      </form>
+      <div class="form-block">
+        <h3>回收站</h3>
+        <div class="kv">
+          <div><dt>占用</dt><dd id="trashInfo">—</dd></div>
+          <div><dt>位置</dt><dd class="mono" id="trashPath">/mnt/.trash</dd></div>
+        </div>
+        <button class="btn btn-sm btn-ghost" type="button" id="trashEmptyBtn">清空回收站</button>
+      </div>
+
+      <div class="form-block">
+        <h3>维护</h3>
+        <div class="btn-row">
+          <button class="btn btn-sm" type="button" id="panelLogBtn">面板日志</button>
+          <button class="btn btn-sm btn-ghost" type="button" id="panelRestartBtn">重启面板</button>
+          <button class="btn btn-sm btn-ghost" type="button" id="deviceRebootBtn">重启设备</button>
+        </div>
+        <p class="muted small" style="margin-top:12px">重启设备会让所有服务中断约 1 分钟。</p>
+      </div>
+
+      <div class="form-block">
+        <h3>关于</h3>
+        <dl class="kv">
+          <div><dt>系统</dt><dd id="abiSys">—</dd></div>
+          <div><dt>内核</dt><dd id="abiKernel">—</dd></div>
+          <div><dt>运行时长</dt><dd id="abiUp">—</dd></div>
+        </dl>
+        <button class="btn btn-ghost" id="logoutBtn"><svg class="i"><use href="#i-logout"/></svg>退出登录</button>
+      </div>
+    </div>
+  </section>
+</main>
+  </div>
+</div>
+
+<nav class="bottomnav" id="bottomNav"></nav>
+
+<input type="file" id="fileInput" multiple hidden>
+<input type="file" id="wallFile" accept="image/*" hidden>
+
+<div class="modal" id="previewModal" hidden>
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <h3 id="previewTitle">预览</h3>
+      <button class="btn-icon" id="previewClose">✕</button>
+    </div>
+    <div class="preview-body" id="previewBody"></div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lb-close" id="lbClose" title="关闭"><svg class="i"><use href="#i-plus"/></svg></button>
+  <button class="lb-nav lb-prev" id="lbPrev" title="上一张"><svg class="i"><use href="#i-back"/></svg></button>
+  <button class="lb-nav lb-next" id="lbNext" title="下一张"><svg class="i"><use href="#i-back"/></svg></button>
+  <img id="lbImg" alt="">
+  <div class="lb-bar">
+    <div class="lb-info">
+      <b id="lbName"></b>
+      <span id="lbMeta"></span>
+    </div>
+    <div class="lb-acts">
+      <button id="lbSlides" title="幻灯片"><svg class="i"><use href="#i-play"/></svg></button>
+      <button id="lbAdd" title="加入相册"><svg class="i"><use href="#i-plus"/></svg></button>
+      <button id="lbDownload" title="下载"><svg class="i"><use href="#i-download"/></svg></button>
+      <button id="lbDelete" class="danger" title="删除"><svg class="i"><use href="#i-trash"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div class="cmdk" id="cmdk" hidden>
+  <div class="cmdk-box" role="dialog" aria-modal="true" aria-label="全局搜索">
+    <div class="cmdk-input">
+      <svg class="i"><use href="#i-search"/></svg>
+      <input id="cmdkInput" placeholder="搜索文件、笔记、应用，或输入页面名…" autocomplete="off" spellcheck="false">
+      <button class="btn-icon" id="cmdkClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="cmdk-list" id="cmdkList"></div>
+    <div class="cmdk-foot"><span><kbd>↑</kbd><kbd>↓</kbd> 选择</span><span><kbd>Enter</kbd> 打开</span><span><kbd>Esc</kbd> 关闭</span></div>
+  </div>
+</div>
+
+<input type="file" id="cfgFile" accept=".gz,.tgz,.tar.gz,application/gzip" hidden>
+
+<div class="toast-box" id="toastBox"></div>
+
+<script src="/static/qrcode.min.js"></script>
+<script src="/static/app.js"></script>
+<script>
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  var host = location.hostname;
+  var secure = location.protocol === 'https:' || host === 'localhost' ||
+               host === '127.0.0.1' || host === '[::1]';
+  if (!secure) return;  // 内网 http 不是安全上下文，浏览器不允许注册 SW
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/static/sw.js', { scope: '/' }).catch(function () {});
+  });
+})();
+</script>
+</body>
+</html>
