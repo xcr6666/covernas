@@ -11,3 +11,6 @@ __pycache__/
 /images/
 /backups/
 /screenshots/
+
+# 工具本地记忆（不提交）
+.dsh-project-memory/

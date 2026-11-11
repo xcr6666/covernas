@@ -118,6 +118,19 @@ POST /api/samba /api/nfs /api/ftp /api/webdav /api/users /api/config/import
 
 完整接口与数据结构见 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)。
 
+
+## 刷机镜像
+
+整机镜像（系统 + 面板 + 常用软件，开箱即用）随版本发布在 Release 里：
+
+| 文件 | 说明 |
+|---|---|
+| `Covernas-1.1.0-onecloud.img.gz` | eMMC 全盘镜像（gzip 约 1.4 GB，解压 7.3 GiB），适配 Amlogic S805 / 1GB / 8GB eMMC |
+| `SHA256SUMS` | 镜像校验值 |
+
+- 刷机步骤、默认凭据、刷后检查清单：见 [docs/FLASHING.md](docs/FLASHING.md)
+- 想从自己的设备导出一份可分发镜像：用 [scripts/extract-image.sh](scripts/extract-image.sh)（会先清理账号/密钥/私人数据）
+
 ## License
 
 MIT © 2026 XCR
