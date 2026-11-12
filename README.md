@@ -1,6 +1,7 @@
 # Covernas
 
 ![License](https://img.shields.io/badge/license-MIT-green)
+![CI](https://github.com/xcr6666/covernas/actions/workflows/ci.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/platform-ARMv7%20%2F%20Amlogic%20S805-blue)
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
 
