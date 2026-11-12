@@ -1,5 +1,9 @@
 # Covernas
 
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-ARMv7%20%2F%20Amlogic%20S805-blue)
+![Python](https://img.shields.io/badge/python-3.8%2B-blue)
+
 > 轻量级家庭 NAS 面板 · Python 标准库单文件后端 · 纯静态前端 · 适配 ARMv7 / 1GB 内存小主机
 
 Covernas 是一个自建的家庭服务器管理面板。它不依赖任何 Web 框架、不引入第三方 Python 包、没有前端构建链——一个 `server.py` 加一组静态文件即可运行，专为低配 ARM 设备（Amlogic S805 / 1GB 内存 / 8GB eMMC）设计。
@@ -125,8 +129,8 @@ POST /api/samba /api/nfs /api/ftp /api/webdav /api/users /api/config/import
 
 | 文件 | 说明 |
 |---|---|
-| `Covernas-1.1.0-onecloud.img.gz` | eMMC 全盘镜像（gzip 约 1.4 GB，解压 7.3 GiB），适配 Amlogic S805 / 1GB / 8GB eMMC |
-| `SHA256SUMS` | 镜像校验值 |
+| [`Covernas-1.1.0-onecloud.img.gz`](https://github.com/xcr6666/covernas/releases/download/v1.1.0/Covernas-1.1.0-onecloud.img.gz) | eMMC 全盘镜像（gzip 约 1.4 GB，解压 7.3 GiB），适配 Amlogic S805 / 1GB / 8GB eMMC |
+| [`SHA256SUMS`](https://github.com/xcr6666/covernas/releases/download/v1.1.0/SHA256SUMS) | 镜像校验值 |
 
 - 刷机步骤、默认凭据、刷后检查清单：见 [docs/FLASHING.md](docs/FLASHING.md)
 - 想从自己的设备导出一份可分发镜像：用 [scripts/extract-image.sh](scripts/extract-image.sh)（会先清理账号/密钥/私人数据）
