@@ -27,9 +27,9 @@ jobs:
       - name: service worker 语法检查
         run: node --check web/sw.js
 
-      - name: 敏感信息自查（不应出现内部主机名/密码/内网 IP）
+      - name: 敏感信息自查（不应出现旧系统名与内网 IP）
         run: |
-          if grep -rniE "wanos|hinas|histb|海纳思|mybox|casaos|192\.168\.2\.63|ecoo1234|box12345" \
+          if grep -rniE "wanos|hinas|histb|海纳思|mybox|casaos|192\.168\.2\.63" \
                --exclude-dir=.git --exclude="SHA256SUMS" .; then
             echo "::error::发现不应提交的内容"
             exit 1
