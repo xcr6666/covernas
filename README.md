@@ -130,7 +130,7 @@ POST /api/samba /api/nfs /api/ftp /api/webdav /api/users /api/config/import
 
 | 文件 | 说明 |
 |---|---|
-| [`Covernas-1.1.0-onecloud.img.gz`](https://github.com/xcr6666/covernas/releases/download/v1.1.0/Covernas-1.1.0-onecloud.img.gz) | eMMC 全盘镜像（gzip 约 1.4 GB，解压 7.3 GiB），适配 Amlogic S805 / 1GB / 8GB eMMC |
+| [`Covernas-1.1.0-onecloud.img.gz`](https://github.com/xcr6666/covernas/releases/download/v1.1.0/Covernas-1.1.0-onecloud.img.gz) | eMMC 全盘镜像（gzip 约 1.5 GB，解压 7.3 GiB），适配 Amlogic S805 / 1GB / 8GB eMMC |
 | [`SHA256SUMS`](https://github.com/xcr6666/covernas/releases/download/v1.1.0/SHA256SUMS) | 镜像校验值 |
 
 - 刷机步骤、默认凭据、刷后检查清单：见 [docs/FLASHING.md](docs/FLASHING.md)

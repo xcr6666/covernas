@@ -9,8 +9,8 @@
 | 底层 | Ubuntu 20.04.6 LTS，内核 5.15.79-meson |
 | 镜像格式 | `Covernas-1.1.0-onecloud.img.gz`（eMMC 全盘原始镜像，gzip 压缩；解压后约 7.3 GiB） |
 | 分区 | p1：vfat `/boot`（256MB，标签 `COVERNAS_BT`）；p2：ext4 `/`（约 7GB，标签 `COVERNAS_ROOT`） |
-| 大小 | gzip 压缩后约 **1.4 GB**（解压后 7.3 GiB） |
-| 校验 | `55fd7e6e1ce17881c994a4b75de92f34415dcd87110f912e14bdcf3fde12a8ee`（见 `SHA256SUMS`） |
+| 大小 | gzip 压缩后约 **1.5 GB**（解压后 7.3 GiB） |
+| 校验 | `5da8e223a146a96440ad1ef5d279a3a562bd706f7a537ce233c7c18137210184`（见 `SHA256SUMS`） |
 | 下载 | 本仓库 **Releases** 页面 |
 
 ## 默认凭据（刷入后请立即修改）
@@ -18,11 +18,11 @@
 | 入口 | 账号 | 默认密码 |
 |---|---|---|
 | 面板 `http://<设备IP>` | `admin` | 首次访问会进入初始化流程，自行设置 |
-| SSH `ssh root@<设备IP>` | `root` | `ecoo1234` |
+| SSH `ssh root@<设备IP>` | `root` | `Covernas@2026`（**刷机后请立即修改**） |
 | 网页终端 `:7681` | `admin` | `box12345` |
 | Samba 共享 | `share` | 需在面板「网络共享」里重新设置 |
 
-> 镜像已做脱敏：不包含任何私人账号、密钥、文件与历史数据。SSH 主机指纹在每次刷机后重新生成，`known_hosts` 里旧的记录需要删除（`ssh-keygen -R <设备IP>`）。
+> 镜像已做脱敏：不包含任何私人账号、密钥、文件与历史数据；root 密码为镜像默认值，刷入后请第一时间修改。SSH 主机指纹在每次刷机后重新生成，`known_hosts` 里旧的记录需要删除（`ssh-keygen -R <设备IP>`）。
 
 ## 刷机方法
 
