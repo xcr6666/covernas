@@ -7,7 +7,7 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +30,7 @@ jobs:
       - name: 敏感信息自查（不应出现旧系统名与内网 IP）
         run: |
           if grep -rniE "wanos|hinas|histb|海纳思|mybox|casaos|192\.168\.2\.63" \
-               --exclude-dir=.git --exclude="SHA256SUMS" .; then
+               --exclude-dir=.git --exclude-dir=.github --exclude="SHA256SUMS" .; then
             echo "::error::发现不应提交的内容"
             exit 1
           fi
