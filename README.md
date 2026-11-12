@@ -4,10 +4,21 @@
 ![CI](https://github.com/xcr6666/covernas/actions/workflows/ci.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/platform-ARMv7%20%2F%20Amlogic%20S805-blue)
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
+![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
+![Size](https://img.shields.io/badge/code-1%20file%20%2B%20static-orange)
 
-> 轻量级家庭 NAS 面板 · Python 标准库单文件后端 · 纯静态前端 · 适配 ARMv7 / 1GB 内存小主机
+> 一块 20 块钱的 ARMv7 小主机，一个 `server.py`，就是一台完整的家用 NAS。
+>
+> **Covernas** 是一个轻量级自建家庭服务器面板：**Python 标准库单文件后端 + 原生 JS 前端**，零第三方依赖、零构建链、零数据库，配置就是几个 JSON 文件。在 Amlogic S805 / 1GB 内存 / 8GB eMMC 上稳定跑 Docker、Samba、媒体库和下载服务。
 
-Covernas 是一个自建的家庭服务器管理面板。它不依赖任何 Web 框架、不引入第三方 Python 包、没有前端构建链——一个 `server.py` 加一组静态文件即可运行，专为低配 ARM 设备（Amlogic S805 / 1GB 内存 / 8GB eMMC）设计。
+**A lightweight self-hosted NAS panel for ARMv7 home servers.** Single-file Python standard-library backend, vanilla JS frontend, no build chain, no external dependencies. Built for Amlogic S805 / 1 GB RAM / 8 GB eMMC class hardware.
+
+为什么是它：
+
+- **零依赖**：只用 Python 3.8 标准库，不用 `pip install`，不挑发行版
+- **零构建**：前端是原生 JS + CSS，改完刷新即生效
+- **低资源**：后台批量查询 + TTL 缓存，避免在 ARMv7 上频繁起子进程
+- **能干活**：34 项应用商店、Docker、共享、备份、远程访问、审计、多账号都在里面
 
 ![桌面](assets/home.png)
 ![应用商店](assets/store.png)
