@@ -513,7 +513,7 @@
             <button class="btn btn-sm btn-primary" type="submit">保存并启动</button>
           </form>
         </div>
-        <div class="note-box">FTP 默认端口 21，主动/被动模式端口 30000–30100。客户端用 <code>ftp://192.168.2.63</code> 连接。</div>
+        <div class="note-box">FTP 默认端口 21，主动/被动模式端口 30000–30100。客户端用 <code>ftp://&lt;设备IP&gt;</code> 连接。</div>
       </div>
 
       <!-- WebDAV -->
@@ -529,7 +529,7 @@
             <button class="btn btn-sm btn-primary" type="submit">保存并启动</button>
           </form>
         </div>
-        <div class="note-box">WebDAV 由 rclone 提供。手机端用支持 WebDAV 的文件 App 连接 <code>http://192.168.2.63:8082</code>。</div>
+        <div class="note-box">WebDAV 由 rclone 提供。手机端用支持 WebDAV 的文件 App 连接 <code>http://&lt;设备IP&gt;:8082</code>。</div>
       </div>
     </div>
   </section>
@@ -768,7 +768,7 @@
       </ul>
 
       <h2>备份</h2>
-      <p>面板代码在 <code>/opt/box</code>，配置在 <code>/etc/box</code>，整机备份在 <code>/root/pre-purge-*</code> 与 <code>/root/casaos-backup</code>。数据备份用「磁盘备份」做 rsync 定时同步到外接盘。</p>
+      <p>面板代码在 <code>/opt/box</code>，配置在 <code>/etc/box</code>，整机备份在 <code>/root/box-backup-*</code>。数据备份用「磁盘备份」做 rsync 定时同步到外接盘。</p>
     </div>
   </section>
 
