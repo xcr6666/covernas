@@ -7,6 +7,7 @@ Box — 自建家庭服务器面板后端
 
 import base64
 import cgi
+import gzip
 import hashlib
 import hmac
 import io
@@ -1499,6 +1500,43 @@ echo "$(date) -> $IP"
 
 
 # ---------------------------------------------------------------- HTTP
+# ---------------------------------------------------------------- 响应压缩
+TEXT_EXT = {".html", ".css", ".js", ".json", ".svg", ".txt", ".webmanifest"}
+STATIC_CACHE_EXT = {".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".webp",
+                    ".svg", ".ico", ".json", ".webmanifest", ".txt"}
+_GZIP_CACHE = {}
+
+
+def gz_for(path, data, accept_enc):
+    """文本响应 gzip：按 (path, mtime) 缓存压缩结果。不值得压缩时返回 None。"""
+    if "gzip" not in (accept_enc or "").lower():
+        return None
+    try:
+        if os.path.splitext(path)[1].lower() not in TEXT_EXT:
+            return None
+    except Exception:
+        return None
+    if len(data) < 860:
+        return None
+    try:
+        mt = int(os.path.getmtime(path))
+    except OSError:
+        mt = 0
+    key = (path, mt)
+    gz = _GZIP_CACHE.get(key)
+    if gz is None:
+        try:
+            gz = gzip.compress(data, 5)
+        except Exception:
+            return None
+        if len(gz) >= len(data) - 64:  # 收益太小，不压缩也不缓存
+            return None
+        if len(_GZIP_CACHE) > 64:
+            _GZIP_CACHE.clear()
+        _GZIP_CACHE[key] = gz
+    return gz
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "Box/0.1"
     protocol_version = "HTTP/1.1"
@@ -1537,10 +1575,16 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:
             return self._json({"ok": False, "err": "not found"}, 404)
         data = html_text.encode("utf-8")
+        extra = []
+        gz = gz_for(fp, data, self.headers.get("Accept-Encoding", ""))
+        if gz is not None:
+            data, extra = gz, [("Content-Encoding", "gzip"), ("Vary", "Accept-Encoding")]
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "no-store")
+        for k, v in extra:
+            self.send_header(k, v)
         self.end_headers()
         self.wfile.write(data)
 
@@ -1551,11 +1595,26 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:
             self._json({"ok": False, "err": "not found"}, 404)
             return
+        extra = []
+        gz = gz_for(path, data, self.headers.get("Accept-Encoding", ""))
+        if gz is not None:
+            data, extra = gz, [("Content-Encoding", "gzip"), ("Vary", "Accept-Encoding")]
         self.send_response(200)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
+        base = os.path.basename(path)
+        ext = os.path.splitext(base)[1].lower()
+        in_web = os.path.abspath(path).startswith(WEB_DIR + os.sep)
         if cache:
             self.send_header("Cache-Control", "public, max-age=604800")
+        elif base == "sw.js":
+            self.send_header("Cache-Control", "no-cache")  # SW 必须每次校验
+        elif in_web and ext in STATIC_CACHE_EXT and ext != ".html":
+            self.send_header("Cache-Control", "public, max-age=3600")
+        elif ext == ".html":
+            self.send_header("Cache-Control", "no-store")  # 入口页不缓存
+        for k, v in extra:
+            self.send_header(k, v)
         self.end_headers()
         self.wfile.write(data)
 
