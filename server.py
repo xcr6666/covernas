@@ -12,6 +12,7 @@ import hashlib
 import hmac
 import io
 import json
+import math
 import os
 import re
 import secrets
@@ -104,6 +105,12 @@ AUDIT_MAX = 2 * 1024 * 1024
 # 这些接口由各自分支写更具体的审计，统一入口不再重复记录
 AUDIT_DETAILED_POST = {"/api/logout", "/api/passwd", "/api/service", "/api/docker",
                        "/api/delete", "/api/upload", "/api/config/import"}
+
+# 监控历史（JSONL 追加，对 eMMC 友好；每 60 秒一个采样点，保留最近 7 天）
+METRICS_FILE = os.path.join(DATA_DIR, "metrics.jsonl")
+METRICS_MAX_LINES = 10080
+METRICS_TRIM_AT = 3 * 1024 * 1024
+METRICS_INTERVAL = 60
 
 
 # ---------------------------------------------------------------- 基础工具
@@ -417,7 +424,8 @@ def search_files(keyword, limit=60):
 
 
 # ---------------------------------------------------------------- 配置备份 / 恢复
-CONFIG_SKIP_FILES = {"auth.json", "recovery-key", "audit.log", "audit.log.1", "users.json"}
+CONFIG_SKIP_FILES = {"auth.json", "recovery-key", "audit.log", "audit.log.1", "users.json",
+                     "metrics.jsonl"}
 CONFIG_EXPORT_FILES = [
     ("var/spool/cron/crontabs/root", "/var/spool/cron/crontabs/root"),
     ("etc/samba/smb.conf", "/etc/samba/smb.conf"),
@@ -1537,6 +1545,88 @@ def gz_for(path, data, accept_enc):
     return gz
 
 
+# ---------------------------------------------------------------- 监控采样
+_METRICS_LOCK = threading.Lock()
+
+
+def _metrics_append():
+    """采样一次系统指标并追加写入 metrics.jsonl；超 3MB 裁剪到最近 7 天。"""
+    try:
+        mi = meminfo()
+        total = mi.get("MemTotal", 0)
+        avail = mi.get("MemAvailable", 0)
+        mem_pct = round(max(0, total - avail) * 100.0 / total, 1) if total else 0
+        nr = net_rate()
+        cpu = max(0.0, cpu_pct())  # 并发读 /proc/stat 可能算出负增量，钳到 0
+        rec = {"t": int(time.time()), "c": round(cpu, 1), "m": mem_pct,
+               "tp": temp_c(), "rx": int(nr.get("rx", 0)), "tx": int(nr.get("tx", 0))}
+        with _METRICS_LOCK:
+            ensure_data_dir()
+            with open(METRICS_FILE, "a", encoding="utf-8") as f:
+                f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            try:
+                if os.path.getsize(METRICS_FILE) > METRICS_TRIM_AT:
+                    with open(METRICS_FILE, encoding="utf-8", errors="replace") as f:
+                        lines = f.readlines()
+                    tmp = METRICS_FILE + ".tmp"
+                    with open(tmp, "w", encoding="utf-8") as f:
+                        f.writelines(lines[-METRICS_MAX_LINES:])
+                    os.replace(tmp, METRICS_FILE)
+            except OSError:
+                pass
+    except Exception:
+        pass
+
+
+def metrics_loop():
+    while True:
+        _metrics_append()
+        time.sleep(METRICS_INTERVAL)
+
+
+def read_metrics(hours=24):
+    """读取最近 N 小时数据；超过 600 点时降采样（均值，网络取峰值）。"""
+    cutoff = int(time.time()) - hours * 3600
+    pts = []
+    try:
+        with open(METRICS_FILE, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    r = json.loads(line)
+                except Exception:
+                    continue
+                if r.get("t", 0) >= cutoff:
+                    pts.append(r)
+    except OSError:
+        return []
+    if len(pts) > 600:
+        step = int(math.ceil(len(pts) / 600.0))
+        out = []
+        for i in range(0, len(pts), step):
+            grp = pts[i:i + step]
+            def avg(k):
+                return round(sum(g.get(k, 0) or 0 for g in grp) / float(len(grp)), 1)
+            out.append({"t": grp[-1]["t"], "c": avg("c"), "m": avg("m"), "tp": avg("tp"),
+                        "rx": max(g.get("rx", 0) or 0 for g in grp),
+                        "tx": max(g.get("tx", 0) or 0 for g in grp)})
+        pts = out
+    return pts
+
+
+def metrics_stat():
+    out = {"size": 0, "count": 0, "interval": METRICS_INTERVAL}
+    try:
+        out["size"] = os.path.getsize(METRICS_FILE)
+        with open(METRICS_FILE, encoding="utf-8", errors="replace") as f:
+            out["count"] = sum(1 for ln in f if ln.strip())
+    except OSError:
+        pass
+    return out
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "Box/0.1"
     protocol_version = "HTTP/1.1"
@@ -1744,6 +1834,16 @@ class Handler(BaseHTTPRequestHandler):
             kw = (q.get("q", [""])[0] or "").strip()
             return self._json({"ok": True, "items": read_audit(lim, ev, kw),
                                "stat": audit_stat()})
+
+        # ---- 监控历史
+        if p == "/api/metrics":
+            try:
+                hrs = int(q.get("hours", ["24"])[0])
+            except ValueError:
+                hrs = 24
+            hrs = max(1, min(hrs, 168))
+            return self._json({"ok": True, "hours": hrs,
+                               "points": read_metrics(hrs), "stat": metrics_stat()})
 
         # ---- 配置导出（下载 tar.gz）
         if p == "/api/config/export":
@@ -2284,6 +2384,17 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
             return
+
+        if p == "/api/metrics":
+            data = urllib.parse.parse_qs(self.rfile.read(length).decode())
+            if (data.get("act") or [""])[0] == "clear":
+                try:
+                    open(METRICS_FILE, "w").close()
+                except OSError as e:
+                    return self._json({"ok": False, "err": str(e)}, 500)
+                self._audit("清空监控历史", "metrics.jsonl")
+                return self._json({"ok": True})
+            return self._json({"ok": False, "err": "未知操作"}, 400)
 
         if p == "/api/users":
             data = urllib.parse.parse_qs(self.rfile.read(length).decode())
@@ -3176,6 +3287,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     ensure_data_dir()
     os.makedirs(TRASH_DIR, exist_ok=True)
+    threading.Thread(target=metrics_loop).start()
     srv = ThreadingHTTPServer(LISTEN, Handler)
     srv.daemon_threads = True
     print("%s listening on %s:%d" % (APP_NAME, LISTEN[0], LISTEN[1]), flush=True)

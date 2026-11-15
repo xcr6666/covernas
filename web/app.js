@@ -87,7 +87,7 @@
     store: '应用商店', share: '网络共享', backup: '磁盘备份',
     site: '部署网站', remote: '远程访问', help: '使用说明',
     tasks: '任务管理器', maintain: '系统维护', shares: '分享链接', device: '我的设备',
-    audit: '操作日志'
+    audit: '操作日志', monitor: '监控'
   };
 
   var NAV_GROUPS = [
@@ -103,6 +103,7 @@
       { v: 'docker', t: '容器', i: 'box' },
       { v: 'cron', t: '计划任务', i: 'clock' },
       { v: 'notes', t: '记事本', i: 'file' },
+      { v: 'monitor', t: '监控', i: 'pulse' },
       { v: 'help', t: '使用说明', i: 'book' }
     ]},
     { title: '系统', items: [
@@ -192,6 +193,7 @@
     if (view === 'shares') loadShares();
     if (view === 'device') loadDevice();
     if (view === 'audit') loadAudit();
+    if (view === 'monitor') loadMonitor();
   }
 
   buildNav();
@@ -428,6 +430,110 @@
           e.target.reset();
           loadUsers();
         });
+    });
+  }
+
+  /* ---------------- 监控历史 ---------------- */
+  var monRange = 24;
+
+  function fmtHM(ts) {
+    var d = new Date(ts * 1000);
+    var p = function (n) { return n < 10 ? '0' + n : n; };
+    return p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function fmtMD(ts) {
+    var d = new Date(ts * 1000);
+    return (d.getMonth() + 1) + '-' + d.getDate();
+  }
+
+  function sparkPts(vals, max, W, H, pad) {
+    var n = vals.length;
+    if (n < 2 || max <= 0) return '';
+    var out = [];
+    for (var i = 0; i < n; i++) {
+      var x = pad + i * (W - pad * 2) / (n - 1);
+      var y = H - pad - Math.max(0, Math.min(vals[i], max)) / max * (H - pad * 2);
+      out.push(x.toFixed(1) + ',' + y.toFixed(1));
+    }
+    return out.join(' ');
+  }
+
+  function monCard(title, pts, key, o) {
+    var vals = pts.map(function (p) { return p[key] || 0; });
+    var cur = vals[vals.length - 1] || 0;
+    var mx = Math.max.apply(null, vals);
+    var av = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+    var W = 600, H = 150, pad = 8;
+    var scale = Math.max(o.max || 0, mx * 1.12, 1);
+    var line = sparkPts(vals, scale, W, H, pad);
+    var area = line ? (pad + ',' + (H - pad) + ' ' + line + ' ' + (W - pad) + ',' + (H - pad)) : '';
+    return '<div class="mon-card">' +
+      '<div class="mon-head"><span class="mon-name">' + title + '</span>' +
+      '<span class="mon-cur" style="color:' + (o.color || 'var(--accent)') + '">' +
+      (Math.round(cur * 10) / 10) + (o.unit || '') + '</span></div>' +
+      '<svg class="mon-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' +
+      '<line x1="' + pad + '" y1="' + (H - pad) + '" x2="' + (W - pad) + '" y2="' + (H - pad) + '" class="mon-axis"/>' +
+      (area ? '<polygon class="mon-area" points="' + area + '" style="fill:' + (o.color || 'var(--accent)') + '"/>' : '') +
+      (line ? '<polyline class="mon-line" points="' + line + '" style="stroke:' + (o.color || 'var(--accent)') + '"/>' : '') +
+      '</svg>' +
+      '<div class="mon-foot"><span>均值 ' + (Math.round(av * 10) / 10) + (o.unit || '') +
+      '</span><span>峰值 ' + (Math.round(mx * 10) / 10) + (o.unit || '') +
+      '</span><span>' + fmtMD(pts[0].t) + ' ' + fmtHM(pts[0].t) + ' → ' + fmtHM(pts[pts.length - 1].t) + '</span></div>' +
+      '</div>';
+  }
+
+  function netCard(pts) {
+    var W = 600, H = 150, pad = 8;
+    var rx = pts.map(function (p) { return p.rx || 0; });
+    var tx = pts.map(function (p) { return p.tx || 0; });
+    var scale = Math.max.apply(null, rx.concat(tx)) * 1.12;
+    if (scale <= 0) scale = 1024;
+    var lr = sparkPts(rx, scale, W, H, pad);
+    var lt = sparkPts(tx, scale, W, H, pad);
+    return '<div class="mon-card">' +
+      '<div class="mon-head"><span class="mon-name">网络</span>' +
+      '<span class="mon-cur"><span style="color:#4f8cff">↓' + fmtRate(rx[rx.length - 1] || 0) +
+      '</span> <span style="color:#f5a524">↑' + fmtRate(tx[tx.length - 1] || 0) + '</span></span></div>' +
+      '<svg class="mon-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' +
+      '<line x1="' + pad + '" y1="' + (H - pad) + '" x2="' + (W - pad) + '" y2="' + (H - pad) + '" class="mon-axis"/>' +
+      '<polyline class="mon-line" points="' + lr + '" style="stroke:#4f8cff"/>' +
+      '<polyline class="mon-line" points="' + lt + '" style="stroke:#f5a524"/>' +
+      '</svg>' +
+      '<div class="mon-foot"><span><i class="mon-dot" style="background:#4f8cff"></i>下行 峰值 ' + fmtRate(Math.max.apply(null, rx)) +
+      '</span><span><i class="mon-dot" style="background:#f5a524"></i>上行 峰值 ' + fmtRate(Math.max.apply(null, tx)) +
+      '</span><span>' + fmtMD(pts[0].t) + ' ' + fmtHM(pts[0].t) + ' → ' + fmtHM(pts[pts.length - 1].t) + '</span></div>' +
+      '</div>';
+  }
+
+  function loadMonitor() {
+    api('/api/metrics?hours=' + monRange).then(function (r) {
+      if (!r.ok) return;
+      var g = $('#monGrid');
+      if (!g) return;
+      var pts = r.points || [];
+      $('#monMeta').textContent = '共 ' + r.stat.count + ' 个采样点 · 每 ' + r.stat.interval +
+        ' 秒一次 · 数据量 ' + fmtBytes(r.stat.size) + ' · 当前显示 ' + pts.length + ' 点';
+      if (!pts.length) {
+        g.innerHTML = '<div class="empty">这个时间段还没有数据<br><span class="muted small">面板每 60 秒采样一次，跑满一小时后曲线就有内容了</span></div>';
+        return;
+      }
+      g.innerHTML =
+        monCard('处理器', pts, 'c', { max: 100, unit: '%' }) +
+        monCard('内存', pts, 'm', { max: 100, unit: '%' }) +
+        monCard('温度', pts, 'tp', { max: 90, unit: '°', color: '#f5a524' }) +
+        netCard(pts);
+    }).catch(function () {});
+  }
+
+  if ($('#monRefresh')) $('#monRefresh').addEventListener('click', loadMonitor);
+  if ($('#monRange')) {
+    $$('#monRange button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        $$('#monRange button').forEach(function (x) { x.classList.remove('on'); });
+        b.classList.add('on');
+        monRange = parseInt(b.dataset.h, 10) || 24;
+        loadMonitor();
+      });
     });
   }
 
